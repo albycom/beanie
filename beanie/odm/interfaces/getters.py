@@ -13,7 +13,16 @@ class OtherGettersInterface:
 
     @classmethod
     def get_motor_collection(cls) -> AsyncIOMotorCollection:
-        return cls.get_settings().motor_collection
+        settings = cls.get_settings()
+        if settings.motor_collection is None:
+            raise ValueError("Motor collection is not set")
+
+        if settings.read_preference or settings.write_concern:
+            return settings.motor_collection.with_options(
+                read_preference=settings.read_preference,
+                write_concern=settings.write_concern,
+            )
+        return settings.motor_collection
 
     @classmethod
     def get_collection_name(cls) -> str:

@@ -1,4 +1,5 @@
 import asyncio
+import copy
 import warnings
 from datetime import datetime, timezone
 from enum import Enum
@@ -31,7 +32,7 @@ from pydantic import (
 )
 from pydantic.class_validators import root_validator
 from pydantic.main import BaseModel
-from pymongo import InsertOne
+from pymongo import InsertOne, ReadPreference, WriteConcern
 from pymongo.errors import DuplicateKeyError
 from pymongo.results import (
     DeleteResult,
@@ -1250,6 +1251,25 @@ class Document(
         return BulkWriter(
             session, ordered, cls, bypass_document_validation, comment
         )
+
+    @classmethod
+    def with_options(
+        cls,
+        write_concern: WriteConcern | None = None,
+        read_preference: ReadPreference | None = None,
+    ) -> Type["Document"]:
+        """
+        Returns a copy of the document class with modified settings.
+        """
+        new_class = copy.deepcopy(cls)
+        settings = new_class.get_settings()
+
+        if write_concern is not None:
+            settings.write_concern = write_concern
+        if read_preference is not None:
+            settings.read_preference = read_preference
+
+        return new_class
 
 
 class DocumentWithSoftDelete(Document):

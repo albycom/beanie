@@ -3,6 +3,7 @@ from typing import Any, Dict, Optional, Type
 
 from motor.motor_asyncio import AsyncIOMotorCollection, AsyncIOMotorDatabase
 from pydantic import BaseModel, Field
+from pymongo import ReadPreference, WriteConcern
 
 from beanie.odm.utils.pydantic import IS_PYDANTIC_V2
 
@@ -25,6 +26,9 @@ class ItemSettings(BaseModel):
     union_doc: Optional[Type] = None
     union_doc_alias: Optional[str] = None
     class_id: str = "_class_id"
+
+    read_preference: Optional[ReadPreference] = None
+    write_concern: Optional[WriteConcern] = None
 
     is_root: bool = False
 
